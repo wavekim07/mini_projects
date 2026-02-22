@@ -2,7 +2,7 @@ import os
 
 print("파일 이름 정리 도구")
 
-path = input("정리할 폴더 경로 입력 : ")
+path = input("정리할 폴더 경로 입력: ")
 
 files = os.listdir(path)
 
