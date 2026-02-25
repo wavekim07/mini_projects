@@ -17,20 +17,26 @@ def build_plan(path, files):
         plan.append((old_path, new_path))
     return plan
 
+def print_plan(plan):
+    for old_path, new_path in plan:
+        print(f"[DRY RUN] {old_path} -> {new_path}")
+
+def apply_plan(plan):
+    for old_path, new_path in plan:
+        os.rename(old_path, new_path)
+
 def main():
     args = parse_args()
     path = args.path
     dry_run = args.dry_run
 
     files = sorted(os.listdir(path))
-
     plan = build_plan(path, files)
 
-    for old_path, new_path in plan:
-        if dry_run:
-            print(f"[DRY RUN] {old_path} -> {new_path}")
-        else:
-            os.rename(old_path, new_path)
+    if dry_run:
+        print_plan(plan)
+    else:
+        apply_plan(plan)
 
 
 if __name__ == "__main__":
