@@ -21,3 +21,12 @@ python rename.py
 dry_run 실행 :
 
 python rename.py 실행 후 dry-run 모드? (y/n)에서 y 선택
+
+## 업데이트 기록
+
+### 2026-02-25
+
+- print_plan() 분리
+- apply_plan() 분리
+- main()은 분기만 담당하도록 구조 개선
+- 기능 변경 없이 리팩토링 진행
