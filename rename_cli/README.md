@@ -1,10 +1,6 @@
 # rename_cli
 
-
-
 간단한 파일 이름 정리 CLI 도구.
-
-
 
 ## 기능
 
@@ -15,12 +11,11 @@
 
 ## 실행 예시
 
-기본 실행 :
-python rename.py
+기본 실행:
+python rename.py --path ./test
 
-dry_run 실행 :
-
-python rename.py 실행 후 dry-run 모드? (y/n)에서 y 선택
+dry-run 실행:
+python rename.py --path ./test --dry-run
 
 ## 업데이트 기록
 
@@ -30,3 +25,10 @@ python rename.py 실행 후 dry-run 모드? (y/n)에서 y 선택
 - apply_plan() 분리
 - main()은 분기만 담당하도록 구조 개선
 - 기능 변경 없이 리팩토링 진행
+
+### 2026-02-26
+
+- 경로 유효성 검사 추가
+- 디렉토리 여부 확인 처리
+- 파일만 대상으로 동작하도록 필터링 추가
+- 기능 변경 없이 안정성 개선
