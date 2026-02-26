@@ -30,7 +30,21 @@ def main():
     path = args.path
     dry_run = args.dry_run
 
-    files = sorted(os.listdir(path))
+    # 경로 존재 확인
+    if(not os.path.exists(path)):
+        print("경로가 존재하지 않습니다.")
+        return
+    
+    # 디렉토리 여부 확인
+    if not os.path.isdir(path):
+        print("디렉터리 경로를 입력하세요.")
+        return
+
+    # 파일만 필터링
+    files = [
+        f for f in sorted(os.listdir(path))
+        if os.path.isfile(os.path.join(path, f))
+    ]
     plan = build_plan(path, files)
 
     if dry_run:
