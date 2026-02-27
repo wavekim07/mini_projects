@@ -1,3 +1,4 @@
+import re
 import os
 import argparse
 
@@ -27,14 +28,25 @@ def validate_path(path: str) -> bool:
 
 # 파일 목록을 기반으로 rename 계획(plan)을 생성한다.
 def build_plan(path, files):
-    # 각 파일에 순번(001_, 002_ ...)을 붙인 새로운 경로를 계산한다.
     plan = []
-    for i, file in enumerate(files):
+    # enumerate -> index : 직접 index 관리
+    index = 1
+
+    for file in files :
+        # 이미 번호가 붙은 파일 스킵
+        if re.match(r"^\d{3}_", file):
+            print(f"[SKIP] 이미 번호가 붙은 파일: {file}")
+            continue
+
         old_path = os.path.join(path, file)
-        new_name = f"{i+1:03d}_{file}"
+        new_name = f"{index:03d}_{file}"
         new_path = os.path.join(path, new_name)
+
         plan.append((old_path, new_path))
+        index += 1
+
     return plan
+
 # 생성된 rename 계획을 출력한다.
 def print_plan(plan):
     # dry_run 모드에서 사용된다.
@@ -44,6 +56,11 @@ def print_plan(plan):
 # rename 계획에 따라 실제 파일 이름을 변경한다.
 def apply_plan(plan):
     for old_path, new_path in plan:
+        
+        if os.path.exists(new_path):
+            print(f"[ERROR] 대상 파일 이미 존재: {new_path}")
+            continue
+            
         os.rename(old_path, new_path)
 
 # 파일 목록 가져오기(필터링 + 정렬)
@@ -71,7 +88,7 @@ def main():
     # 파일이 없으면 안전 종료
     if len(files) == 0:
         print(f"[WARN] 처리할 파입이 없습니다: {path}")
-        
+
     plan = build_plan(path, files)
 
     if dry_run:
