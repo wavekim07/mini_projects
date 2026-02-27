@@ -31,11 +31,13 @@ def build_plan(path, files):
     plan = []
     # enumerate -> index : 직접 index 관리
     index = 1
+    skipped = 0
 
     for file in files :
         # 이미 번호가 붙은 파일 스킵
         if re.match(r"^\d{3}_", file):
             print(f"[SKIP] 이미 번호가 붙은 파일: {file}")
+            skipped += 1
             continue
 
         old_path = os.path.join(path, file)
@@ -45,7 +47,7 @@ def build_plan(path, files):
         plan.append((old_path, new_path))
         index += 1
 
-    return plan
+    return plan, skipped
 
 # 생성된 rename 계획을 출력한다.
 def print_plan(plan):
@@ -55,13 +57,20 @@ def print_plan(plan):
 
 # rename 계획에 따라 실제 파일 이름을 변경한다.
 def apply_plan(plan):
+    renamed = 0
+    coflicts = 0
+
     for old_path, new_path in plan:
         
         if os.path.exists(new_path):
             print(f"[ERROR] 대상 파일 이미 존재: {new_path}")
+            conflicts += 1
             continue
-            
+
         os.rename(old_path, new_path)
+        renamed += 1
+
+        return renamed, coflicts
 
 # 파일 목록 가져오기(필터링 + 정렬)
 def get_files(path: str) -> list[str]:
@@ -89,12 +98,21 @@ def main():
     if len(files) == 0:
         print(f"[WARN] 처리할 파입이 없습니다: {path}")
 
-    plan = build_plan(path, files)
+    plan, skipped = build_plan(path, files)
 
     if dry_run:
         print_plan(plan)
+        print("\n===== 실행 요약 =====")
+        print(f"변경 예정: {len(plan)}")
+        print(f"스킵: {skipped}")
+        print(f"충돌: 0")
     else:
-        apply_plan(plan)
+        renamed, conflicts = apply_plan(plan)
+
+        print("\n====== 실행 요약 =====")
+        print(f"변경 완료: {renamed}")
+        print(f"스킵: {skipped}")
+        print(f"충돌: {conflicts}")
 
 
 if __name__ == "__main__":
