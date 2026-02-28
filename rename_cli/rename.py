@@ -58,19 +58,19 @@ def print_plan(plan):
 # rename 계획에 따라 실제 파일 이름을 변경한다.
 def apply_plan(plan):
     renamed = 0
-    coflicts = 0
+    conflicts = 0
 
     for old_path, new_path in plan:
         
         if os.path.exists(new_path):
-            print(f"[ERROR] 대상 파일 이미 존재: {new_path}")
+            print(f"[CONFLICT] 대상 파일 이미 존재: {new_path}")
             conflicts += 1
             continue
 
         os.rename(old_path, new_path)
         renamed += 1
 
-        return renamed, coflicts
+    return renamed, conflicts
 
 # 파일 목록 가져오기(필터링 + 정렬)
 def get_files(path: str) -> list[str]:
@@ -96,7 +96,8 @@ def main():
     
     # 파일이 없으면 안전 종료
     if len(files) == 0:
-        print(f"[WARN] 처리할 파입이 없습니다: {path}")
+        print(f"[WARN] 처리할 파일이 없습니다: {path}")
+        return
 
     plan, skipped = build_plan(path, files)
 
