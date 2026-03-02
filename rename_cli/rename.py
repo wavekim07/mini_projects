@@ -26,11 +26,19 @@ def validate_path(path: str) -> bool:
     
     return True
 
+# 기존 번호 파일의 최대 prefix를 찾아 다음 번호를 시작점으로 사용
+def get_start_index (files: list[str]) -> int:
+    max_prefix = 0
+    for f in files :
+        m = re.match(r"^(\d{3})_", f)
+        if m:
+            max_prefix = max(max_prefix, int(m.group(1)))
+    return max_prefix + 1 if max_prefix > 0 else 1
 # 파일 목록을 기반으로 rename 계획(plan)을 생성한다.
 def build_plan(path, files):
     plan = []
-    # enumerate -> index : 직접 index 관리
-    index = 1
+    # 시작 번호를 "현재 폴더 상태" 기반으로 잡음
+    index = get_start_index(files)
     skipped = 0
 
     for file in files :
@@ -54,6 +62,14 @@ def print_plan(plan):
     # dry_run 모드에서 사용된다.
     for old_path, new_path in plan:
         print(f"[DRY RUN] {old_path} -> {new_path}")
+
+# dry-run 에서도 충돌 예상 개수를 계산
+def count_conflicts(plan) -> int:
+    conflicts = 0
+    for _, new_path in plan:
+        if os.path.exists(new_path):
+            conflicts += 1
+    return conflicts
 
 # rename 계획에 따라 실제 파일 이름을 변경한다.
 def apply_plan(plan):
@@ -103,18 +119,19 @@ def main():
 
     if dry_run:
         print_plan(plan)
+        predicted_conflicts = count_conflicts(plan)
+
         print("\n===== 실행 요약 =====")
         print(f"변경 예정: {len(plan)}")
         print(f"스킵: {skipped}")
-        print(f"충돌: 0")
+        print(f"충돌(예상): {predicted_conflicts}")
     else:
         renamed, conflicts = apply_plan(plan)
 
-        print("\n====== 실행 요약 =====")
+        print("\n===== 실행 요약 =====")
         print(f"변경 완료: {renamed}")
         print(f"스킵: {skipped}")
         print(f"충돌: {conflicts}")
-
 
 if __name__ == "__main__":
     main()
